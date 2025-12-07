@@ -39,3 +39,9 @@
 
 # debug information files
 *.dwo
+
+# CLion
+.idea/
+
+# Build folder
+build/
