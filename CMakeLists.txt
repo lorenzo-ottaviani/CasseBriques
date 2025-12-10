@@ -25,12 +25,11 @@ endif()
 # Include the 'include' directory so C++ can find our .hpp files
 include_directories(include)
 
-# Explicitly list files
-add_executable(Breakout
-        src/main.cpp
-        src/InputManager.cpp
-        src/GameObject.cpp
-)
+# Automatically find all .cpp files in the 'src' directory and stores it in the variable ${SOURCES}
+file(GLOB SOURCES "src/*.cpp")
+
+# Create the executable using the detected source files
+add_executable(Breakout ${SOURCES})
 
 # --- Library Linking ---
 if(WIN32)
