@@ -1,3 +1,13 @@
 #include "InputManager.hpp"
-// Implementation is currently fully inline/template in the header.
-// Kept for future expansion.
+
+void InputManager::bindKey(sf::Keyboard::Key key, const Callback& action) {
+    m_keyBindings[key] = action;
+}
+
+void InputManager::update() {
+    for (auto const& [key, action] : m_keyBindings) {
+        if (sf::Keyboard::isKeyPressed(key)) {
+            action();
+        }
+    }
+}
