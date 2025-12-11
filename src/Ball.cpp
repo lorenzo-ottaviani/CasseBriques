@@ -38,12 +38,6 @@ void Ball::update(float deltaTime) {
         velocity.y = -velocity.y;   // Invert vertical direction
     }
 
-    // Bottom Wall (Ground)
-    // In a real game, this is "Game Over". For now, we just bounce.
-    if (pos.y > 590.f) {
-        setPosition(pos.x, 590.f);
-        velocity.y = -velocity.y;
-    }
 }
 
 void Ball::draw(sf::RenderTarget& target, sf::RenderStates states) const {
