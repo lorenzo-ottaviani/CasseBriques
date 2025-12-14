@@ -1,6 +1,14 @@
+/* ===  INCLUDES  === */
+
+// --- Class Header ---
 #include "Game.hpp"
+
+// --- Standard C++ Libraries ---
 #include <iostream>
 #include <cmath>
+
+
+/* ===  LIFECYCLE & EXECUTION  === */
 
 Game::Game()
     : m_window(sf::VideoMode(800, 600), "Breakout - Step 5: Refactoring"),
@@ -8,6 +16,7 @@ Game::Game()
       m_paddle(400, 550),
       m_ball(400, 300)
 {
+    // 0. Window Setup
     m_window.setFramerateLimit(60);
 
     // 1. Load Resources
@@ -15,25 +24,25 @@ Game::Game()
         std::cerr << "ERROR: Could not load arial.ttf" << std::endl;
     }
 
-    // 2. Setup Text
+    // 2. Setup User Interface
     m_text.setFont(m_font);
     m_text.setCharacterSize(50);
     m_text.setFillColor(sf::Color::White);
     m_text.setStyle(sf::Text::Bold);
 
-    // 3. Setup Inputs
-    // We bind keys to the paddle's movement using lambdas
+    // 3. Bind Inputs
+    // We bind keys using lambdas to call member methods
     m_inputManager.bindKey(sf::Keyboard::Left,  [this](){ m_paddle.move(-m_paddle.speed * 0.016f, 0.f); });
     m_inputManager.bindKey(sf::Keyboard::Right, [this](){ m_paddle.move(m_paddle.speed * 0.016f, 0.f); });
 
-    // Restart game on Space
+    // Game Flow Control (Restart)
     m_inputManager.bindKey(sf::Keyboard::Space, [this](){
         if (m_state != GameState::Running) {
             resetLevel();
         }
     });
 
-    // 4. Initialize Level
+    // 4. Initialize Game State
     resetLevel();
 }
 
@@ -50,6 +59,9 @@ void Game::run() {
     }
 }
 
+
+/* ===  CORE LOGIC  === */
+
 void Game::processEvents() {
     sf::Event event{};
     while (m_window.pollEvent(event)) {
@@ -59,21 +71,21 @@ void Game::processEvents() {
 }
 
 void Game::update(float deltaTime) {
-    m_inputManager.update(); // Handle inputs in all states
+    m_inputManager.update(); // Poll inputs every frame
 
     if (m_state == GameState::Running) {
         m_paddle.update(deltaTime);
         m_ball.update(deltaTime);
 
-        // --- Collisions ---
+        // --- Physics & Collisions ---
 
-        // 1. Paddle
+        // 1. Paddle vs Ball
         if (m_paddle.checkCollision(m_ball)) {
-            m_ball.velocity.y = -std::abs(m_ball.velocity.y); // Bounce up
+            m_ball.velocity.y = -std::abs(m_ball.velocity.y); // Bounce UP
             m_ball.move(0.f, -10.f); // Unstick
         }
 
-        // 2. Bricks
+        // 2. Bricks vs Ball
         for (auto& brick : m_bricks) {
             if (!brick.isDestroyed && brick.checkCollision(m_ball)) {
                 brick.isDestroyed = true;
@@ -82,7 +94,7 @@ void Game::update(float deltaTime) {
             }
         }
 
-        // --- Win / Loss Conditions ---
+        // --- Game Rules ---
 
         // Check Victory
         int remainingBricks = 0;
@@ -95,7 +107,7 @@ void Game::update(float deltaTime) {
             centerText("VICTORY! Press Space");
         }
 
-        // Check Defeat (Ball below screen)
+        // Check Defeat
         if (m_ball.getPosition().y > 600.f) {
             m_state = GameState::GameOver;
             centerText("GAME OVER\nPress Space");
@@ -108,7 +120,7 @@ void Game::render() {
     m_window.clear(sf::Color::Black);
 
     if (m_state == GameState::Running) {
-        // Draw gameplay
+        // Draw World
         for (const auto& brick : m_bricks) {
             brick.draw(m_window, sf::RenderStates::Default);
         }
@@ -116,23 +128,25 @@ void Game::render() {
         m_window.draw(m_ball);
     }
     else {
-        // Draw Text (Game Over or Victory)
+        // Draw UI
         m_window.draw(m_text);
     }
 
     m_window.display();
 }
 
+
+/* ===  HELPER METHODS  === */
+
 void Game::resetLevel() {
     m_state = GameState::Running;
 
-    // Reset positions
+    // Reset Entity Positions
     m_paddle.setPosition(400, 550);
     m_ball.setPosition(400, 300);
-    // Reset ball velocity (optional, if you changed it)
     m_ball.velocity = {250.f, -250.f};
 
-    // Re-generate Bricks
+    // Re-generate Bricks Grid
     m_bricks.clear();
     constexpr int rows = 5;
 
