@@ -11,7 +11,7 @@
 /* ===  LIFECYCLE & EXECUTION  === */
 
 Game::Game()
-    : m_window(sf::VideoMode(800, 600), "Breakout - Step 5: Refactoring"),
+    : m_window(sf::VideoMode(800, 600), "Breakout - Demo Version"),
       m_state(GameState::Running),
       m_paddle(400, 550),
       m_ball(400, 300)
